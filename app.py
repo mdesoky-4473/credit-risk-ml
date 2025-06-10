@@ -6,6 +6,8 @@ app = Flask(__name__)
 
 # Load model at the top
 model = pickle.load(open("model.pkl", "rb"))
+model_columns = pickle.load(open("model_columns.pkl", "rb"))
+print(model_columns)  
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -16,8 +18,8 @@ def predict():
 
     # One-hot encode loan_purpose (excluding 'debt_consolidation' to avoid multicollinearity)
     loan_purpose_options = [
-        "other", "home_improvement", "major_purchase",
-        "medical_expense", "small_business", "vacation" ]
+        "home_improvement","major_purchase","medical_expense","other", 
+        "small_business", "vacation"]
     loan_purpose_encoded = [1 if loan_purpose == opt else 0 for opt in loan_purpose_options]
 
     # One-hot encode employment_status (excluding 'employed')

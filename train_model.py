@@ -15,7 +15,7 @@ data = pd.DataFrame({
     ],
     'loan_purpose': [
         'debt_consolidation', 'vacation', 'medical_expense', 'home_improvement',
-        'major_purchase', 'small_business', 'other', 'debt_consolidation'
+        'major_purchase', 'small_business', 'other','vacation'
     ],
     'label': [0, 1, 1, 0, 0, 1, 0, 1]
 })
@@ -25,6 +25,7 @@ data = pd.get_dummies(data, columns=['employment_status', 'loan_purpose'], drop_
 
 # Train model
 X = data.drop('label', axis=1)
+print(X.columns)  # Display feature names
 y = data['label']
 
 model = RandomForestClassifier()
@@ -33,5 +34,8 @@ model.fit(X, y)
 # Save model
 with open("model.pkl", "wb") as f:
     pickle.dump(model, f)
+
+with open("model_columns.pkl", "wb") as f:
+    pickle.dump(X.columns.tolist(), f)
 
 print("✅ Model trained and saved as model.pkl")
