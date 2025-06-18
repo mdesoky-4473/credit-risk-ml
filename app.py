@@ -1,13 +1,14 @@
 from flask import Flask, request, jsonify
 import pickle
 import numpy as np
+import pandas as pd
 
 app = Flask(__name__)  
 
 # Load model at the top
 model = pickle.load(open("model.pkl", "rb"))
 model_columns = pickle.load(open("model_columns.pkl", "rb"))
-print(model_columns)  
+#print(model_columns)  
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -38,7 +39,19 @@ def predict():
         *loan_purpose_encoded        # [other, home_improvement, ..., vacation]
     ]])
 
-    risk_score = model.predict_proba(features)[0][1]
+    input_df = pd.DataFrame(features, columns=[
+    'income', 'age', 'credit_score', 'loan_amount', 'debt_to_income_ratio',
+    'employment_status_self-employed', 'employment_status_unemployed',
+    'loan_purpose_home_improvement', 'loan_purpose_major_purchase', 
+    'loan_purpose_medical_expense', 'loan_purpose_other',
+    'loan_purpose_small_business', 'loan_purpose_vacation'
+    ])
+
+    # Reorder and fill missing columns
+    input_df = input_df.reindex(columns=model_columns, fill_value=0)
+
+    risk_score = model.predict_proba(input_df)[0][1]
+    
     decision = "approve" if risk_score < 0.5 else "deny"
 
     return jsonify({
@@ -47,5 +60,5 @@ def predict():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
 
